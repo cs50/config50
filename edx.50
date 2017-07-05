@@ -1,0 +1,51 @@
+# vim:syntax=python
+axis50 = "cs50/2017/x/"
+
+# comments
+pset0 = score(axis50 + "pset0/mario") # inline comment
+
+mario = max(score(axis50 + "pset1/mario/less"), score(axis50 + "pset1/mario/more"))
+money = max(score(axis50 + "pset1/money/credit"), score(axis50 + "pset1/money/greedy"))
+water = score("cs50/2017/x/pset1/water")
+pset1 = (2 * mario + 2 * money + water) / 5
+
+
+initials = max(score(axis50 + "pset2/initials/less"), score(axis50 + "pset2/initialis/more"))
+crypto = score(axis50 + "pset2/crypto/caesar") + score(axis50 + "pset2/crypto/vinegere")
+pset2 = (2 * crypto + initials) / 3
+
+
+find = max(score(axis50 + "pset3/find/less"), score(axis50 + "pset3/find/more"))
+fifteen = score(axis50 + "pset3/fifteen")
+pset3 = (3 * fifteen + find) / 4
+
+whodunit = score(axis50 + "pset4/whodunit")
+recover = score(axis50 + "pset4/recover")
+pset4 = (2 * recover + whodunit) / 3
+
+pset5 = score(axis50 + "pset5")
+
+mario_py = max(score(axis50 + "pset6/c/mario/less"), score(axis50 + "pset6/c/mario/more"))
+money_py = max(score(axis50 + "pset6/c/money/credit"), score(axis50 + "pset6/c/money/greedy"))
+pset1_py = (2 * money_py + mario_py) / 3
+pset2_py = max(score(axis50 + "pset6/c/crypto/caesar"), score(axis50 + "pset6/c/crypto/vinegere"))
+sentiments = score(axis50 + "pset6/sentiments")
+pset6 = (2 * sentiments + pset1_py + pset2_py) / 4
+
+pset7 = score(axis50 + "pset7")
+
+pset8 = score(axis50 + "pset8")
+
+project = score(axis50 + "project")
+
+pass_bound = 0.7
+
+# 1 if all psets greater than pass_bound, 0 otherwise
+passed = (pset1 >= pass_bound) * (pset2 >= pass_bound) * 
+         (pset3 >= pass_bound) * (pset4 >= pass_bound) * 
+         (pset5 >= pass_bound) * (pset6 >= pass_bound) * 
+         (pset7 >= pass_bound) * (project >= pass_bound)
+
+psets = avg(pset1, pset2, pset3, pset4, pset5, pset6, pset7, pset8)
+final = avg((psets, 90), (project, 10))
+
