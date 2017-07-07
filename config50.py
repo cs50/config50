@@ -145,6 +145,10 @@ class Config50Visitor(PTNodeVisitor):
         self.symbols[children[0]] = None if children[1] is Nothing else children[1]
         return children[1]
 
+    def visit_config(self, node, children):
+        # Parsing the whole file should return the symbols dict
+        return self.symbols
+
 
 if __name__ == "__main__":
     import sys
@@ -152,7 +156,6 @@ if __name__ == "__main__":
 
     debug = False
     parser = ParserPython(config, comment, debug=debug)
-    parse_tree = parser.parse(sys.stdin.read())
     visitor = Config50Visitor(functions, debug=debug)
-    visit_parse_tree(parse_tree, visitor)
-    pprint(visitor.symbols)
+    parse_tree = parser.parse(sys.stdin.read())
+    pprint(visit_parse_tree(parse_tree, visitor))
