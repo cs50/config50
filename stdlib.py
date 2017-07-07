@@ -56,16 +56,13 @@ Nothing = NothingType()
 
 def avg(*args):
     denominator = 0
-    sum = 0
+    numerator = 0
     for arg in args:
-        if isinstance(arg, tuple) and arg[0] is not Nothing:
-            denominator += arg[1]
-            sum += arg[0] * arg[1]
-        elif arg is not Nothing:
-            denominator += 1
-            sum += arg
-
-    return sum / denominator if denominator else Nothing
+        score, weight = arg if isinstance(arg, tuple) else (arg, 1)
+        if score is not Nothing:
+            denominator += weight
+            numerator += score * weight
+    return numerator / denominator if denominator else Nothing
 
 
 # TODO

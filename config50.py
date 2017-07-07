@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 from itertools import islice
+import os
+from pprint import pprint
+import sys
+import traceback
 
 from arpeggio import RegExMatch, Optional, ZeroOrMore, OneOrMore, EOF, Kwd
 from arpeggio import ParserPython, PTNodeVisitor, visit_parse_tree, ArpeggioError
@@ -149,13 +153,34 @@ class Config50Visitor(PTNodeVisitor):
         # Parsing the whole file should return the symbols dict
         return self.symbols
 
+def repl(parser, visitor):
+    while True:
+        try:
+            print("config50> ", end="")
+            sys.stdout.flush()
+            line = sys.stdin.readline()
+            if line == "":
+                print("")
+                break
+            elif line == "\n":
+                continue
+            parse_tree = parser.parse(line.strip())
+            result = visit_parse_tree(parse_tree, visitor)
+            print(repr(result))
+        except Exception:
+            traceback.print_exc()
+    pprint(visitor.symbols)
+
 
 if __name__ == "__main__":
-    import sys
-    from pprint import pprint
-
     debug = False
-    parser = ParserPython(config, comment, debug=debug)
     visitor = Config50Visitor(functions, debug=debug)
-    parse_tree = parser.parse(sys.stdin.read())
-    pprint(visit_parse_tree(parse_tree, visitor))
+
+    #TODO: probs should replace with argparse
+    if len(sys.argv) == 2 and sys.argv[1] == "-i" and os.isatty(sys.stdin.fileno()):
+        parser = ParserPython(assignment, comment, debug=debug)
+        repl(parser, visitor)
+    else:
+        parser = ParserPython(config, comment, debug=debug)
+        parse_tree = parser.parse(sys.stdin.read())
+        pprint(visit_parse_tree(parse_tree, visitor))
