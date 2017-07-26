@@ -67,8 +67,6 @@ def avg(*args):
 
 # TODO
 import random
-
-
 def score(slug): return round(random.random(), 2)
 
 

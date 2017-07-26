@@ -1,35 +1,36 @@
 #!/usr/bin/env python3
+import ast
 from itertools import islice
 import os
 from pprint import pprint
 import sys
 import traceback
 
-from arpeggio import RegExMatch, Optional, ZeroOrMore, OneOrMore, EOF, Kwd
+from arpeggio import Optional, ZeroOrMore, OneOrMore, EOF
 from arpeggio import ParserPython, PTNodeVisitor, visit_parse_tree, ArpeggioError
+from arpeggio import RegExMatch as _
 
 from stdlib import Nothing, functions
 
 WORD = r"[A-z][\w\-\.]*"
 
 # Terminals
-def comment():      return r"#", RegExMatch(r".*")
-def number():       return RegExMatch(r"\d+\.\d*|\.\d+|\d+")
-def identifier():   return RegExMatch(WORD)
-def string():       return RegExMatch(r'"[^"]*"')
+def comment():      return _(r"#.*")
+def number():       return _(r"\d+\.\d*|\.\d+|\d+")
+def identifier():   return _(WORD)
+def string():       return _(r'"([^"\\]|\\.)*"')
 def nothing():      return "Nothing"
 
 # Non-terminals
-#TODO: Improve tuple grammar?
 def tuple_():       return "(", assignment, ZeroOrMore(",", assignment), Optional(","), ")"
 def arglist():      return assignment, ZeroOrMore(",", assignment)
-def function():     return RegExMatch(WORD), "(", Optional(arglist), ")"
+def function():     return _(WORD), "(", Optional(arglist), ")"
 def atom():         return [nothing, string, function, number, identifier, tuple_]
 def factor():       return Optional(["+", "-"]), [("(", assignment, ")"), atom]
 def term():         return factor, ZeroOrMore(["*", "//", "/"], factor)
 def arith():        return term, ZeroOrMore(["+", "-"], term)
 def comparison():   return arith, ZeroOrMore(["<=", ">=", "==", "!=", "<", ">"], arith)
-def assignment():   return Optional(RegExMatch(WORD) , "="), comparison
+def assignment():   return Optional(_(WORD) , "="), comparison
 def config():       return ZeroOrMore(assignment), EOF
 
 
@@ -61,8 +62,8 @@ class Config50Visitor(PTNodeVisitor):
         return (float if "." in node.value else int)(node.value)
 
     def visit_string(self, node, children):
-        # Remove trailing and leading double quotes
-        return node.value[1:-1]
+        # Let python take care of the backslash escaping
+        return ast.literal_eval(node.value)
 
     def visit_nothing(self, node, children):
         return Nothing
