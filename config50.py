@@ -12,26 +12,28 @@ from arpeggio import RegExMatch as _
 
 from stdlib import Nothing, functions
 
-WORD = r"[A-z][\w\-\.]*"
+# Helper definitions
+WORD = r"[A-z]\w*"
+def str_match(quote):   return _(fr"r?{quote}([^{quote}\\]|\\.)*{quote}")
 
 # Terminals
-def comment():      return _(r"#.*")
-def number():       return _(r"\d+\.\d*|\.\d+|\d+")
-def identifier():   return _(WORD)
-def string():       return _(r'"([^"\\]|\\.)*"')
-def nothing():      return "Nothing"
+def comment():          return _(r"#.*")
+def number():           return _(r"\d+\.\d*|\.\d+|\d+")
+def identifier():       return _(WORD)
+def string():           return [str_match('"'), str_match("'")]
+def nothing():          return "Nothing"
 
 # Non-terminals
-def tuple_():       return "(", assignment, ZeroOrMore(",", assignment), Optional(","), ")"
-def arglist():      return assignment, ZeroOrMore(",", assignment)
-def function():     return _(WORD), "(", Optional(arglist), ")"
-def atom():         return [nothing, string, function, number, identifier, tuple_]
-def factor():       return Optional(["+", "-"]), [("(", assignment, ")"), atom]
-def term():         return factor, ZeroOrMore(["*", "//", "/"], factor)
-def arith():        return term, ZeroOrMore(["+", "-"], term)
-def comparison():   return arith, ZeroOrMore(["<=", ">=", "==", "!=", "<", ">"], arith)
-def assignment():   return Optional(_(WORD) , "="), comparison
-def config():       return ZeroOrMore(assignment), EOF
+def tuple_():           return "(", assignment, ZeroOrMore(",", assignment), Optional(","), ")"
+def arglist():          return assignment, ZeroOrMore(",", assignment)
+def function():         return _(WORD), "(", Optional(arglist), ")"
+def atom():             return [nothing, string, function, number, identifier, tuple_]
+def factor():           return Optional(["+", "-"]), [("(", assignment, ")"), atom]
+def term():             return factor, ZeroOrMore(["*", "//", "/"], factor)
+def arith():            return term, ZeroOrMore(["+", "-"], term)
+def comparison():       return arith, ZeroOrMore(["<=", ">=", "==", "!=", "<", ">"], arith)
+def assignment():       return Optional(_(WORD) , "="), comparison
+def config():           return ZeroOrMore(assignment), EOF
 
 
 def windows(items, size, jump):
